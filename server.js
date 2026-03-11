@@ -12,6 +12,8 @@ app.use(express.json());  // 3️⃣ Parse JSON before routes
 // Routes
 const tenantRoutes = require("./routes/tenantRoutes");
 const authRoutes = require("./routes/authRoutes");
+const walletRoutes = require("./routes/walletRoutes");
+app.use("/api/wallet", walletRoutes);
 
 app.use("/api/tenants", tenantRoutes);
 app.use("/api/auth", authRoutes);

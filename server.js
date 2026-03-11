@@ -2,12 +2,12 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 
-dotenv.config();          // 1️⃣ Load env variables
-connectDB();              // 2️⃣ Connect to MongoDB
+dotenv.config();          
+connectDB();              
 
 const app = express();
 
-app.use(express.json());  // 3️⃣ Parse JSON before routes
+app.use(express.json());  
 
 // Routes
 const tenantRoutes = require("./routes/tenantRoutes");

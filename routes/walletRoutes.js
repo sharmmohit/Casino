@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const protect = require("../middleware/authMiddleware");
+const {protect} = require("../middleware/authMiddleware");
 const { deposit, withdraw } = require("../controllers/walletController");
 
 router.post("/deposit", protect, deposit);

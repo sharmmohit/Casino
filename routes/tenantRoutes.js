@@ -1,7 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const { createTenant } = require("../controllers/tenantController");
+const { 
+  createTenant, 
+  getActiveTenants, 
+  getTenantById 
+} = require("../controllers/tenantController");
+const { protect } = require("../middleware/authMiddleware");
 
-router.post("/", createTenant);
+// Public routes
+router.post("/register", createTenant);
+router.get("/active", getActiveTenants);
+
+// Protected routes
+router.get("/:id", protect, getTenantById);
 
 module.exports = router;

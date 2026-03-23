@@ -10,21 +10,21 @@ const tenantSchema = mongoose.Schema({
     required: true,
     unique: true 
   },
+  ownerName: { 
+    type: String, 
+    required: true 
+  },
+  ownerEmail: { 
+    type: String, 
+    required: true,
+    lowercase: true
+  },
   apiKey: { 
     type: String 
   },
   isActive: { 
     type: Boolean, 
     default: true 
-  },
-  // Add these owner fields
-  ownerName: {
-    type: String,
-    required: true
-  },
-  ownerEmail: {
-    type: String,
-    required: true
   },
   settings: {
     currency: { type: String, default: "USD" },

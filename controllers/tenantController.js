@@ -13,12 +13,22 @@ const generateToken = (id, tenantId, role) => {
   );
 };
 
-// Create tenant with owner account
 const createTenant = async (req, res) => {
   try {
     const { name, domain, ownerName, ownerEmail, password } = req.body;
     
-    console.log("Creating new tenant:", { name, domain, ownerEmail });
+    console.log("=== New Tenant Registration ===");
+    console.log("Casino Name:", name);
+    console.log("Domain:", domain);
+    console.log("Owner Name:", ownerName);
+    console.log("Owner Email:", ownerEmail);
+    
+    // Validate required fields
+    if (!name || !domain || !ownerName || !ownerEmail || !password) {
+      return res.status(400).json({ 
+        message: "All fields are required: name, domain, ownerName, ownerEmail, password" 
+      });
+    }
     
     // Check if tenant exists
     const existingTenant = await Tenant.findOne({ domain });
@@ -35,15 +45,23 @@ const createTenant = async (req, res) => {
     // Generate API key
     const apiKey = crypto.randomBytes(16).toString("hex");
     
-    // Create tenant
+    // Create tenant with all fields
     const tenant = await Tenant.create({
       name,
       domain,
+      ownerName,
+      ownerEmail,
       apiKey,
-      isActive: true
+      isActive: true,
+      settings: {
+        currency: "USD",
+        theme: "dark",
+        primaryColor: "#fbbf24"
+      }
     });
     
-    console.log("Tenant created:", tenant._id);
+    console.log("✅ Tenant created with ID:", tenant._id);
+    console.log("   Owner saved in tenant:", tenant.ownerName);
     
     // Hash password
     const salt = await bcrypt.genSalt(10);
@@ -58,7 +76,7 @@ const createTenant = async (req, res) => {
       role: "tenantadmin"
     });
     
-    console.log("Owner user created:", ownerUser._id);
+    console.log("✅ Owner user created with ID:", ownerUser._id);
     
     // Create wallet for owner
     await Wallet.create({
@@ -67,6 +85,9 @@ const createTenant = async (req, res) => {
       balance: 0,
       currency: "USD"
     });
+    
+    console.log("✅ Wallet created for owner");
+    console.log("=== Registration Complete ===");
     
     // Generate token for auto-login
     const token = generateToken(ownerUser._id, tenant._id, ownerUser.role);
@@ -77,6 +98,8 @@ const createTenant = async (req, res) => {
         _id: tenant._id,
         name: tenant.name,
         domain: tenant.domain,
+        ownerName: tenant.ownerName,
+        ownerEmail: tenant.ownerEmail,
         apiKey: tenant.apiKey
       },
       user: {
@@ -89,20 +112,21 @@ const createTenant = async (req, res) => {
     });
     
   } catch (error) {
-    console.error("Create tenant error:", error);
+    console.error("❌ Create tenant error:", error);
+    console.error("Error stack:", error.stack);
     res.status(500).json({ 
       message: "Server error", 
-      error: error.message 
+      error: error.message
     });
   }
 };
 
-// Get all active tenants (for dropdown)
 const getActiveTenants = async (req, res) => {
   try {
     const tenants = await Tenant.find({ isActive: true })
-      .select("name domain");
+      .select("name domain ownerName settings");
     
+    console.log(`Found ${tenants.length} active tenants`);
     res.json(tenants);
   } catch (error) {
     console.error("Get tenants error:", error);
@@ -110,7 +134,6 @@ const getActiveTenants = async (req, res) => {
   }
 };
 
-// Get tenant by ID
 const getTenantById = async (req, res) => {
   try {
     const tenant = await Tenant.findById(req.params.id);

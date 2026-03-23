@@ -22,7 +22,8 @@ app.use(express.json());
 const tenantRoutes = require("./routes/tenantRoutes");
 const authRoutes = require("./routes/authRoutes");
 const walletRoutes = require("./routes/walletRoutes");
-
+const gameRoutes = require("./routes/gameRoutes");
+app.use("/api/games", gameRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/tenants", tenantRoutes);
 app.use("/api/auth", authRoutes);
